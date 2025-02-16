@@ -24,6 +24,8 @@ fun NotifyNavigation(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    if (true) else false
+
     NavHost(navController = navController, startDestination = Signup ) {
         composable<Signup> {
             SignUpScreen(navController)

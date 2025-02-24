@@ -88,9 +88,10 @@ class FormViewModel : ViewModel() {
 
             result = Pair(false, "Password length should be greater than 5")
 
-        } else if ( password != confirmedPassword) {
-            result = Pair(false, "Confirmed password should be match")
         }
+//        else if ( password != confirmedPassword) {
+//            result = Pair(false, "Confirmed password should be match")
+//        }
         return result
     }
 

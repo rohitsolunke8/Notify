@@ -2,15 +2,13 @@ package com.example.notify.ui_layer.signup
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notify.models.user.UserRequest
 import com.example.notify.models.user.UserResponse
 import com.example.notify.repo.UserRepository
-import com.example.notify.utils.Constants.TOKEN
 import com.example.notify.utils.NetworkResult
-import com.example.notify.utils.TokenManager
+import com.example.notify.utils.saveToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -50,10 +48,9 @@ class AuthViewModel @Inject constructor(
                     }
 
                     is NetworkResult.Success -> {
-                        TokenManager.saveToken(
-                            state.data?.body()!!.token,
-                            key = stringPreferencesKey(TOKEN),
-                            context = context
+                        saveToken(
+                            context = context,
+                            state.data?.body()!!.token
                         )
 
                         _newUser.update {

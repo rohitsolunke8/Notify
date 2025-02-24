@@ -1,12 +1,15 @@
 package com.example.notify.ui_layer.signin
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notify.models.user.UserRequest
 import com.example.notify.models.user.UserResponse
 import com.example.notify.repo.UserRepository
 import com.example.notify.utils.NetworkResult
+import com.example.notify.utils.saveToken
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +20,10 @@ import retrofit2.Response
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val userRepository: UserRepository,
+    @ApplicationContext val context: Context
+) : ViewModel() {
 
     private val _existingUser =
         MutableStateFlow<NetworkResult<Response<UserResponse>>>(NetworkResult.Idel())
@@ -48,6 +54,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
                     }
 
                     is NetworkResult.Success -> {
+                        saveToken(context = context, token = login.data?.body()!!.token)
                         _existingUser.update {
                             NetworkResult.Success(data = login.data!!, loading = login.loading)
                         }

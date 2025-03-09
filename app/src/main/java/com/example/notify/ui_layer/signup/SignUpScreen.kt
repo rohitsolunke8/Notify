@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -32,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.notify.models.user.UserRequest
 import com.example.notify.ui_layer.composables.Buttons
 import com.example.notify.ui_layer.composables.PasswordField
 import com.example.notify.ui_layer.composables.SignupActionText
@@ -98,14 +98,14 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthViewModel = hi
                     focusManager.moveFocus(FocusDirection.Down)
                 }
             ),
-            onValueChange = {formViewModel.updateUsername(it)},
+            onValueChange = { formViewModel.updateUsername(it) },
         )
 
         ValidatingInputTextField(
             inputContent = inputFieldState.value.email,
 
             labelText = "Enter email",
-            validatorHasErrors = formViewModel.validator(inputFieldState.value.email, inputFieldState.value.password),
+            validatorHasErrors = formViewModel.validator(),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next
             ),
@@ -130,7 +130,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthViewModel = hi
                 }
             ),
             modifier = Modifier,
-            onValueChange = {formViewModel.updateConfirmPassword(it)}
+            onValueChange = { formViewModel.updatePassword(it) }
         )
 
         PasswordField(
@@ -155,7 +155,12 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthViewModel = hi
                     focusManager.clearFocus()
                 }
             ),
-            onValueChange = {formViewModel.updateConfirmPassword(it)}
+            onValueChange = { formViewModel.updateConfirmPassword(it) }
+        )
+
+        Text(
+            formViewModel.validator().second,
+            color = Color.Red
         )
 
         HorizontalDivider(
@@ -169,15 +174,14 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthViewModel = hi
             modifier = Modifier
                 .imePadding(),
             contentText = "Sign-Up",
-            enabled = formViewModel.validator(inputFieldState.value.email, inputFieldState.value.password),
+            enabled = formViewModel.validator().first,
             onClick = {
-                viewModel.userAuth(
-                    UserRequest(
-                        email = formViewModel.email,
-                        password = formViewModel.password,
-                        username = formViewModel.userName
-                    )
-                )
+                if (!formViewModel.validator().first) {
+                    Toast.makeText(context, formViewModel.validator().second, Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    viewModel.userAuth(formViewModel.getUserRequest())
+                }
             },
             loading = userState.loading
         )

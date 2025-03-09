@@ -37,13 +37,13 @@ class AuthViewModel @Inject constructor(
 
                     is NetworkResult.Error -> {
                         _newUser.update {
-                            NetworkResult.Error(message = state.message, loading = false)
+                            NetworkResult.Error(message = state.message, loading = state.loading)
                         }
                     }
 
                     is NetworkResult.Loading -> {
                         _newUser.update {
-                            NetworkResult.Loading(loading = true)
+                            NetworkResult.Loading(loading = state.loading)
                         }
                     }
 
@@ -54,7 +54,7 @@ class AuthViewModel @Inject constructor(
                         )
 
                         _newUser.update {
-                            NetworkResult.Success(data = state.data, loading = false)
+                            NetworkResult.Success(data = state.data, loading = state.loading)
                         }
                     }
 

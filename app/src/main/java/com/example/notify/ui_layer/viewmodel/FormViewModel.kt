@@ -24,16 +24,13 @@ class FormViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(InputUiState())
     val uiState = _uiState.asStateFlow()
 
-    var email by mutableStateOf("")
-        private set
+    private var email by mutableStateOf("")
 
-    var password by mutableStateOf("")
-        private set
+    private var password by mutableStateOf("")
 
-    var confirmedPassword by mutableStateOf("")
-        private set
+    private var confirmedPassword by mutableStateOf("")
 
-    var userName by mutableStateOf("")
+    var username by mutableStateOf("")
         private set
 
 
@@ -54,11 +51,11 @@ class FormViewModel : ViewModel() {
     }
 
     fun updateUsername(input: String) {
-        _uiState.value = _uiState.value.copy(email = input)
+        _uiState.value = _uiState.value.copy(username = input)
     }
 
     fun updateEmail(input: String) {
-        _uiState.value = _uiState.value.copy(username = input)
+        _uiState.value = _uiState.value.copy(email = input)
     }
 
     fun updatePassword(password: String) {
@@ -73,7 +70,7 @@ class FormViewModel : ViewModel() {
     fun validator(
         email: String = _uiState.value.email,
         password: String = _uiState.value.password,
-        confirmedPassword: String? = _uiState.value.confirmedPassword
+        confirmedPassword: String? = _uiState.value.confirmedPassword,
     ): Pair<Boolean, String> {
         var result = Pair(true, "")
         if (email.isEmpty() || password.isEmpty()) {
@@ -89,9 +86,9 @@ class FormViewModel : ViewModel() {
             result = Pair(false, "Password length should be greater than 5")
 
         }
-//        else if ( password != confirmedPassword) {
-//            result = Pair(false, "Confirmed password should be match")
-//        }
+        else if ( password != confirmedPassword) {
+            result = Pair(false, "Confirmed password should be match")
+        }
         return result
     }
 

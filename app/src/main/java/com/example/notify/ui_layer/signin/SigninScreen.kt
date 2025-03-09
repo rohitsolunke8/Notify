@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -27,6 +28,7 @@ import com.example.notify.ui_layer.composables.Buttons
 import com.example.notify.ui_layer.composables.PasswordField
 import com.example.notify.ui_layer.composables.SignupActionText
 import com.example.notify.ui_layer.composables.ValidatingInputTextField
+import com.example.notify.ui_layer.navigation.Note
 import com.example.notify.ui_layer.navigation.Signup
 import com.example.notify.ui_layer.viewmodel.FormViewModel
 import com.example.notify.utils.NetworkResult
@@ -65,7 +67,7 @@ fun SigninScreen(navController: NavHostController, viewModel: LoginViewModel = h
                     focusManager.moveFocus(FocusDirection.Down)
                 }
             ),
-            onValueChange = { formViewModel.updateUsername(it) },
+            onValueChange = { formViewModel.updateEmail(it) },
             validatorHasErrors = formViewModel.validator(),
         )
 
@@ -85,12 +87,17 @@ fun SigninScreen(navController: NavHostController, viewModel: LoginViewModel = h
             onValueChange = { formViewModel.updatePassword(it) }
         )
 
+        Text(
+            formViewModel.validator().second,
+            color = Color.Red
+        )
+
         HorizontalDivider(thickness = 2.dp, modifier = Modifier.padding(16.dp))
 
         Buttons(
             modifier = Modifier,
             contentText = "Sign-In",
-            enabled = formViewModel.validator(),
+            enabled = formViewModel.validator().first,
             loading = userAuthState.loading,
             onClick = {
                 if (!formViewModel.validator().first) {
@@ -98,8 +105,6 @@ fun SigninScreen(navController: NavHostController, viewModel: LoginViewModel = h
                         .show()
                 } else {
                     viewModel.loginAuth(formViewModel.getUserRequest())
-
-
                 }
             },
         )
@@ -128,9 +133,8 @@ fun SigninScreen(navController: NavHostController, viewModel: LoginViewModel = h
             }
 
             is NetworkResult.Success -> {
-
+                navController.navigate(Note)
             }
-
         }
     }
 }

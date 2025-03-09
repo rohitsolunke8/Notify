@@ -54,12 +54,14 @@ class LoginViewModel @Inject constructor(
                     }
 
                     is NetworkResult.Success -> {
-                        saveToken(context = context, token = login.data?.body()!!.token)
+                        saveToken(
+                            context = context,
+                            token = login.data?.body()!!.token
+                        )
                         _existingUser.update {
-                            NetworkResult.Success(data = login.data!!, loading = login.loading)
+                            NetworkResult.Success(data = login.data, loading = login.loading)
                         }
                     }
-
                 }
             }
         }

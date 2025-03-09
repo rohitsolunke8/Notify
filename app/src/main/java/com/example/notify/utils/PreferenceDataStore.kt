@@ -20,8 +20,8 @@ suspend fun saveToken(context: Context, token: String) {
     }
 }
 
-fun getToken(context: Context): Flow<String> {
+fun getToken(context: Context): Flow<String?> {
     return context.dataStore.data.map { preferences ->
-        (preferences[tokenManger] ?: null).toString()
+        preferences[tokenManger]
     }
 }

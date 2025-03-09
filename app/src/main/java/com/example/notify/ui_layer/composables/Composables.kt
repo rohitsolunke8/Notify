@@ -52,12 +52,12 @@ fun ValidatingInputTextField(
         value = inputContent,
         onValueChange = onValueChange,
         label = { Text(labelText) },
-        isError = validatorHasErrors.first,
-        supportingText = {
-            if (validatorHasErrors.first) {
-                Text(validatorHasErrors.second)
-            }
-        },
+//        isError = !validatorHasErrors.first,
+//        supportingText = {
+//            if (!validatorHasErrors.first) {
+//                Text(validatorHasErrors.second)
+//            }
+//        },
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions
     )
@@ -114,7 +114,7 @@ fun Buttons(
     onClick: () -> Unit,
     modifier: Modifier,
     contentText: String,
-    enabled: Pair<Boolean, String>,
+    enabled: Boolean,
     loading: Boolean
 ) {
     Button(

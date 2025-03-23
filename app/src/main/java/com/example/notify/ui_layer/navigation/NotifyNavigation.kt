@@ -16,7 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.notify.ui_layer.notes.NotesScreen
 import com.example.notify.ui_layer.signin.SigninScreen
 import com.example.notify.ui_layer.signup.SignUpScreen
-import com.example.notify.utils.getToken
+import com.example.notify.utils.NotifyPreferencesDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -28,17 +28,21 @@ fun NotifyNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val tokenManager = NotifyPreferencesDataStore(context)
 
     var token by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(key1 = token) {
         scope.launch {
-            token = getToken(context).first()
+            token = tokenManager.tokenKeyFlow.first()
         }
     }
 
 
-    NavHost(navController = navController, startDestination = if (token == null) Note else Signup) {
+    NavHost(
+        navController = navController,
+        startDestination = if (token != null) Note else Signup
+    ) {
         composable<Signup> {
             SignUpScreen(navController)
         }

@@ -1,15 +1,16 @@
 package com.example.notify.utils
 
-sealed class NetworkResult<T>(
-    val data: T? = null,
-    val message: String? = null,
-    var loading: Boolean = false
-) {
-    class Success<T>(data: T, loading: Boolean) : NetworkResult<T>(data, loading = loading)
+import com.example.notify.models.notes.NotesResponse
+import retrofit2.Response
 
-    class Error<T>(message: String?, data: T? = null, loading: Boolean) : NetworkResult<T>(data, message, loading = loading)
+sealed class NetworkResult<out T> {
+    data class Success<out T>(val data: T) : NetworkResult<T>()
+    data class Error(val message: String) : NetworkResult<Nothing>()
+    data object Loading : NetworkResult<Nothing>()
+}
 
-    class Loading<T>(loading : Boolean) : NetworkResult<T>(loading = loading)
-
-    class Idel<T>: NetworkResult<T>()
+sealed class NotesResult<out T> {
+    data class Success<out T>(val data: T) : NotesResult<T>()
+    data class Error(val message: String) : NotesResult<Nothing>()
+    data object Loading : NetworkResult<Nothing>()
 }

@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import com.example.notify.models.user.UserRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 
 data class InputUiState(
@@ -30,8 +31,7 @@ class FormViewModel : ViewModel() {
 
     private var confirmedPassword by mutableStateOf("")
 
-    var username by mutableStateOf("")
-        private set
+    private var username by mutableStateOf("")
 
 
     val emailHasErrors by derivedStateOf {
@@ -51,15 +51,21 @@ class FormViewModel : ViewModel() {
     }
 
     fun updateUsername(input: String) {
-        _uiState.value = _uiState.value.copy(username = input)
+        _uiState.update {
+            _uiState.value.copy(username = input)
+        }
     }
 
     fun updateEmail(input: String) {
-        _uiState.value = _uiState.value.copy(email = input)
+        _uiState.update {
+            _uiState.value.copy(email = input)
+        }
     }
 
     fun updatePassword(password: String) {
-        _uiState.value = _uiState.value.copy(password = password)
+        _uiState.update {
+            _uiState.value.copy(password = password)
+        }
     }
 
     fun updateConfirmPassword(confirmedPassword: String) {
@@ -70,10 +76,11 @@ class FormViewModel : ViewModel() {
     fun validator(
         email: String = _uiState.value.email,
         password: String = _uiState.value.password,
+        username: String = _uiState.value.username,
         confirmedPassword: String? = _uiState.value.confirmedPassword,
     ): Pair<Boolean, String> {
         var result = Pair(true, "")
-        if (email.isEmpty() || password.isEmpty()) {
+        if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
 
             result = Pair(false, "All fields are required")
 
@@ -86,9 +93,9 @@ class FormViewModel : ViewModel() {
             result = Pair(false, "Password length should be greater than 5")
 
         }
-        else if ( password != confirmedPassword) {
-            result = Pair(false, "Confirmed password should be match")
-        }
+//        else if ( password != confirmedPassword) {
+//            result = Pair(false, "Confirmed password should be match")
+//        }
         return result
     }
 

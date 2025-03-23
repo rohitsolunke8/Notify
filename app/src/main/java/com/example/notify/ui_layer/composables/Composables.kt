@@ -114,12 +114,12 @@ fun Buttons(
     onClick: () -> Unit,
     modifier: Modifier,
     contentText: String,
-    enabled: Boolean,
+    enabled: Pair<Boolean, String>,
     loading: Boolean
 ) {
     Button(
         onClick = onClick,
-        enabled = true,
+        enabled = enabled.first,
         modifier = Modifier
             .fillMaxWidth()
     ) {

@@ -28,7 +28,6 @@ import com.example.notify.ui_layer.composables.Buttons
 import com.example.notify.ui_layer.composables.PasswordField
 import com.example.notify.ui_layer.composables.SignupActionText
 import com.example.notify.ui_layer.composables.ValidatingInputTextField
-import com.example.notify.ui_layer.navigation.Note
 import com.example.notify.ui_layer.navigation.Signup
 import com.example.notify.ui_layer.viewmodel.FormViewModel
 import com.example.notify.utils.NetworkResult
@@ -40,7 +39,7 @@ fun SigninScreen(navController: NavHostController, viewModel: LoginViewModel = h
     val context = LocalContext.current
 
     val userAuthState by viewModel.existingUserViewModel.collectAsState()
-    val formViewModel: FormViewModel = viewModel()
+    val formViewModel: FormViewModel = hiltViewModel()
     val inputFieldState by formViewModel.uiState.collectAsState()
 
     Column(
@@ -97,10 +96,10 @@ fun SigninScreen(navController: NavHostController, viewModel: LoginViewModel = h
         Buttons(
             modifier = Modifier,
             contentText = "Sign-In",
-            enabled = formViewModel.validator().first,
-            loading = userAuthState.loading,
+            enabled = formViewModel.validator(),
+            loading = true,
             onClick = {
-                if (!formViewModel.validator().first) {
+                if (formViewModel.validator().first) {
                     Toast.makeText(context, formViewModel.validator().second, Toast.LENGTH_SHORT)
                         .show()
                 } else {
@@ -116,25 +115,5 @@ fun SigninScreen(navController: NavHostController, viewModel: LoginViewModel = h
             entryText = "Don't have an account? ",
             entryOption = "Sign-Up"
         )
-
-        when (userAuthState) {
-
-            is NetworkResult.Error -> {
-                Toast.makeText(context, userAuthState.message, Toast.LENGTH_SHORT).show()
-                viewModel.resetState()
-            }
-
-            is NetworkResult.Idel -> {
-
-            }
-
-            is NetworkResult.Loading -> {
-
-            }
-
-            is NetworkResult.Success -> {
-                navController.navigate(Note)
-            }
-        }
     }
 }

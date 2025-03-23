@@ -77,7 +77,9 @@ dependencies {
 
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
 
-    implementation("androidx.datastore:datastore-preferences:1.1.2")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    implementation("androidx.datastore:datastore-preferences:1.1.3")
 
 }
 

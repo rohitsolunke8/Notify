@@ -8,7 +8,8 @@ import com.example.notify.models.user.UserRequest
 import com.example.notify.models.user.UserResponse
 import com.example.notify.repo.UserRepository
 import com.example.notify.utils.NetworkResult
-import com.example.notify.utils.saveToken
+import com.example.notify.utils.NotesResult
+import com.example.notify.utils.NotifyPreferencesDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -27,8 +28,9 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var _newUser =
-        MutableStateFlow<NetworkResult<Response<UserResponse>>>(NetworkResult.Idel())
+        MutableStateFlow<NetworkResult<Response<UserResponse>>>(NetworkResult.Loading)
     val newUser: StateFlow<NetworkResult<Response<UserResponse>>> = _newUser.asStateFlow()
+    private val tokenManager = NotifyPreferencesDataStore(context)
 
     fun userAuth(userRequest: UserRequest) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -37,37 +39,32 @@ class AuthViewModel @Inject constructor(
 
                     is NetworkResult.Error -> {
                         _newUser.update {
-                            NetworkResult.Error(message = state.message, loading = state.loading)
+                            NetworkResult.Error(message = state.message)
                         }
                     }
 
                     is NetworkResult.Loading -> {
                         _newUser.update {
-                            NetworkResult.Loading(loading = state.loading)
+                            NetworkResult.Loading
                         }
                     }
 
                     is NetworkResult.Success -> {
-                        saveToken(
-                            context = context,
-                            state.data?.body()!!.token
-                        )
+                        tokenManager.saveToken(state.data.body()!!.token)
 
                         _newUser.update {
-                            NetworkResult.Success(data = state.data, loading = state.loading)
+                            NetworkResult.Success(data = state.data)
                         }
                     }
 
-                    is NetworkResult.Idel -> {}
+                    NotesResult.Loading -> {
+                        _newUser.update {
+                            NetworkResult.Loading
+                        }
+                    }
                 }
 
             }
-        }
-    }
-
-    fun resetState() {
-        _newUser.update {
-            NetworkResult.Idel()
         }
     }
 }

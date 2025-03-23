@@ -22,6 +22,6 @@ interface NotesApi {
     suspend fun updateNote(@Path("noteId") noteId: String, @Body noteRequest: NotesRequest) : Response<NotesResponse>
 
     @DELETE("api/notes/{noteId}")
-    suspend fun deleteNote(@Path("notedId") noteId: String,@Body noteRequest: NotesRequest) : Response<NotesResponse>
+    suspend fun deleteNote(@Path("notedId") noteId: String) : Response<NotesResponse>
 
 }

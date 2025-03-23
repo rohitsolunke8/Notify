@@ -7,7 +7,8 @@ import com.example.notify.models.user.UserRequest
 import com.example.notify.models.user.UserResponse
 import com.example.notify.repo.UserRepository
 import com.example.notify.utils.NetworkResult
-import com.example.notify.utils.saveToken
+import com.example.notify.utils.NotesResult
+import com.example.notify.utils.NotifyPreferencesDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -26,8 +27,9 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _existingUser =
-        MutableStateFlow<NetworkResult<Response<UserResponse>>>(NetworkResult.Idel())
+        MutableStateFlow<NetworkResult<Response<UserResponse>>>(NetworkResult.Loading)
     val existingUserViewModel = _existingUser.asStateFlow()
+    private val tokenManager = NotifyPreferencesDataStore(context)
 
 
     fun loginAuth(userRequest: UserRequest) {
@@ -37,39 +39,31 @@ class LoginViewModel @Inject constructor(
 
                     is NetworkResult.Error -> {
                         _existingUser.update {
-                            NetworkResult.Error(login.message, loading = login.loading)
+                            NetworkResult.Error(login.message)
                         }
                     }
 
-                    is NetworkResult.Idel -> {
-                        _existingUser.update {
-                            NetworkResult.Idel()
-                        }
-                    }
 
                     is NetworkResult.Loading -> {
                         _existingUser.update {
-                            NetworkResult.Loading(loading = login.loading)
+                            NetworkResult.Loading
                         }
                     }
 
                     is NetworkResult.Success -> {
-                        saveToken(
-                            context = context,
-                            token = login.data?.body()!!.token
-                        )
+                        tokenManager.saveToken(token = login.data.body()!!.token)
                         _existingUser.update {
-                            NetworkResult.Success(data = login.data, loading = login.loading)
+                            NetworkResult.Success(data = login.data)
+                        }
+                    }
+
+                    NotesResult.Loading -> {
+                        _existingUser.update {
+                            NetworkResult.Loading
                         }
                     }
                 }
             }
-        }
-    }
-
-    fun resetState() {
-        _existingUser.update {
-            NetworkResult.Idel()
         }
     }
 }

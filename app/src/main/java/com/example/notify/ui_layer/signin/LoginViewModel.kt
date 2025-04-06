@@ -7,7 +7,6 @@ import com.example.notify.models.user.UserRequest
 import com.example.notify.models.user.UserResponse
 import com.example.notify.repo.UserRepository
 import com.example.notify.utils.NetworkResult
-import com.example.notify.utils.NotesResult
 import com.example.notify.utils.NotifyPreferencesDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,7 +26,7 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _existingUser =
-        MutableStateFlow<NetworkResult<Response<UserResponse>>>(NetworkResult.Loading)
+        MutableStateFlow<NetworkResult<Response<UserResponse>>>(NetworkResult.Ideal)
     val existingUserViewModel = _existingUser.asStateFlow()
     private val tokenManager = NotifyPreferencesDataStore(context)
 
@@ -57,9 +56,9 @@ class LoginViewModel @Inject constructor(
                         }
                     }
 
-                    NotesResult.Loading -> {
+                    NetworkResult.Ideal -> {
                         _existingUser.update {
-                            NetworkResult.Loading
+                            NetworkResult.Ideal
                         }
                     }
                 }

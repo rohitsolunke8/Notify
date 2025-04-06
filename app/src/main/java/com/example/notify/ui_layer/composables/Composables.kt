@@ -72,7 +72,6 @@ fun PasswordField(
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions,
     keyboardActions: KeyboardActions,
-    formViewModel: FormViewModel = hiltViewModel()
 ) {
     var passwordVisibility by rememberSaveable { mutableStateOf(false) }
 
@@ -114,8 +113,7 @@ fun Buttons(
     onClick: () -> Unit,
     modifier: Modifier,
     contentText: String,
-    enabled: Pair<Boolean, String>,
-    loading: Boolean
+    enabled: Pair<Boolean, String>
 ) {
     Button(
         onClick = onClick,
@@ -123,20 +121,7 @@ fun Buttons(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-
-        if (loading) {
-            CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier
-                    .size(30.dp)
-            )
-        } else {
-            Text(
-                text = contentText,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onTertiary
-            )
-        }
+        Text(text = contentText)
     }
 }
 

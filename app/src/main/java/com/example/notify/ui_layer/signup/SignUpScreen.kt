@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.notify.ui_layer.composables.Buttons
+import com.example.notify.ui_layer.composables.MakeToast
 import com.example.notify.ui_layer.composables.PasswordField
 import com.example.notify.ui_layer.composables.SignupActionText
 import com.example.notify.ui_layer.composables.ValidatingInputTextField
@@ -42,7 +43,6 @@ import com.example.notify.ui_layer.navigation.Login
 import com.example.notify.ui_layer.navigation.Note
 import com.example.notify.ui_layer.viewmodel.FormViewModel
 import com.example.notify.utils.NetworkResult
-import com.example.notify.utils.NotesResult
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -61,8 +61,12 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthViewModel = hi
     val coroutineScope = rememberCoroutineScope()
 
     when (userState) {
+
         is NetworkResult.Error -> {
-            Toast.makeText(context, "$userState", Toast.LENGTH_SHORT).show()
+            MakeToast(
+                context = context,
+                message = (userState as NetworkResult.Error).message
+            )
         }
 
         NetworkResult.Loading -> {
@@ -73,15 +77,13 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthViewModel = hi
         }
 
         is NetworkResult.Success<*> -> {
-            Toast.makeText(context, "$userState", Toast.LENGTH_SHORT).show()
             navController.navigate(Note)
         }
 
-        NotesResult.Loading -> {
-
+        else -> {
+            NetworkResult.Ideal
         }
     }
-
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -101,7 +103,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthViewModel = hi
             inputContent = inputFieldState.value.username,
 
             labelText = "Enter username",
-            validatorHasErrors = formViewModel.validator(),
+            validatorHasErrors = formViewModel.validator(isLogin = false),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next
             ),
@@ -117,7 +119,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthViewModel = hi
             inputContent = inputFieldState.value.email,
 
             labelText = "Enter email",
-            validatorHasErrors = formViewModel.validator(),
+            validatorHasErrors = formViewModel.validator(isLogin = false),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next
             ),
@@ -171,7 +173,7 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthViewModel = hi
         )
 
         Text(
-            formViewModel.validator().second,
+            formViewModel.validator(isLogin = false).second,
             color = Color.Red
         )
 
@@ -188,14 +190,17 @@ fun SignUpScreen(navController: NavHostController, viewModel: AuthViewModel = hi
             contentText = "Sign-Up",
             enabled = formViewModel.validator(),
             onClick = {
-                if (!formViewModel.validator().first) {
-                    Toast.makeText(context, formViewModel.validator().second, Toast.LENGTH_SHORT)
+                if (!formViewModel.validator(isLogin = false).first) {
+                    Toast.makeText(
+                        context,
+                        formViewModel.validator(isLogin = false).second,
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 } else {
                     viewModel.userAuth(formViewModel.getUserRequest())
                 }
             },
-            loading = false
         )
 
         SignupActionText(

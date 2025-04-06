@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,19 +30,48 @@ import com.example.notify.ui_layer.composables.Buttons
 import com.example.notify.ui_layer.composables.PasswordField
 import com.example.notify.ui_layer.composables.SignupActionText
 import com.example.notify.ui_layer.composables.ValidatingInputTextField
+import com.example.notify.ui_layer.navigation.Note
 import com.example.notify.ui_layer.navigation.Signup
+import com.example.notify.ui_layer.signup.AuthViewModel
 import com.example.notify.ui_layer.viewmodel.FormViewModel
 import com.example.notify.utils.NetworkResult
+import com.example.notify.utils.NotesResult
+import okhttp3.internal.notify
 
 @Composable
-fun SigninScreen(navController: NavHostController, viewModel: LoginViewModel = hiltViewModel()) {
+fun SigninScreen(navController: NavHostController, viewModel: AuthViewModel = hiltViewModel()) {
 
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
-    val userAuthState by viewModel.existingUserViewModel.collectAsState()
+    val userAuthState by viewModel.newUser.collectAsState()
     val formViewModel: FormViewModel = hiltViewModel()
     val inputFieldState by formViewModel.uiState.collectAsState()
+
+    when (userAuthState) {
+        is NetworkResult.Error -> {
+            Toast.makeText(context, (userAuthState as NetworkResult.Error).message, Toast.LENGTH_SHORT).show()
+            viewModel.resetState()
+        }
+
+        NetworkResult.Loading -> {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize()
+            )
+            viewModel.resetState()
+        }
+
+        is NetworkResult.Success<*> -> {
+            navController.navigate(Note)
+            viewModel.resetState()
+        }
+
+        else -> {
+            NetworkResult.Ideal
+        }
+    }
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -67,7 +98,7 @@ fun SigninScreen(navController: NavHostController, viewModel: LoginViewModel = h
                 }
             ),
             onValueChange = { formViewModel.updateEmail(it) },
-            validatorHasErrors = formViewModel.validator(),
+            validatorHasErrors = formViewModel.validator(isLogin = true),
         )
 
         PasswordField(
@@ -87,7 +118,7 @@ fun SigninScreen(navController: NavHostController, viewModel: LoginViewModel = h
         )
 
         Text(
-            formViewModel.validator().second,
+            formViewModel.validator(isLogin = true).second,
             color = Color.Red
         )
 
@@ -96,14 +127,13 @@ fun SigninScreen(navController: NavHostController, viewModel: LoginViewModel = h
         Buttons(
             modifier = Modifier,
             contentText = "Sign-In",
-            enabled = formViewModel.validator(),
-            loading = true,
+            enabled = formViewModel.validator(isLogin = true),
             onClick = {
-                if (formViewModel.validator().first) {
-                    Toast.makeText(context, formViewModel.validator().second, Toast.LENGTH_SHORT)
+                if (!formViewModel.validator(isLogin = true).first) {
+                    Toast.makeText(context, formViewModel.validator(isLogin = true).second, Toast.LENGTH_SHORT)
                         .show()
                 } else {
-                    viewModel.loginAuth(formViewModel.getUserRequest())
+                    viewModel.userLogin(formViewModel.getUserRequest())
                 }
             },
         )

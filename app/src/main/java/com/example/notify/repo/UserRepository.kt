@@ -5,6 +5,7 @@ import com.example.notify.models.user.UserRequest
 import com.example.notify.models.user.UserResponse
 import com.example.notify.utils.NetworkResult
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import org.json.JSONObject
 import retrofit2.Response
@@ -14,18 +15,10 @@ class UserRepository @Inject constructor(private val userApi: UserApi) {
 
 
     fun registerAuth(userRequest: UserRequest): Flow<NetworkResult<Response<UserResponse>>> = flow {
-
         emit(NetworkResult.Loading)
         try {
             val response = userApi.signup(userRequest)
-            if (response.isSuccessful && response.body() != null) {
-                emit(NetworkResult.Success(data = response))
-            } else if (response.errorBody() != null) {
-                val errorObj = JSONObject(response.errorBody()!!.charStream().readText())
-                emit(NetworkResult.Error(errorObj.getString("message")))
-            } else {
-                emit(NetworkResult.Error(response.errorBody().toString()))
-            }
+            userRequest(response)
         } catch (e: Exception) {
             emit(NetworkResult.Error(e.message!!))
         }
@@ -35,16 +28,22 @@ class UserRepository @Inject constructor(private val userApi: UserApi) {
         emit(NetworkResult.Loading)
         try {
             val response = userApi.signin(userRequest)
-            if (response.isSuccessful && response.body() != null) {
-                emit(NetworkResult.Success(data = response))
-            } else if (response.errorBody() != null) {
-                val errorObj = JSONObject(response.errorBody()!!.charStream().readText())
-                emit(NetworkResult.Error(errorObj.getString("message")))
-            } else {
-                emit(NetworkResult.Error(response.errorBody().toString()))
-            }
+            userRequest(response)
         } catch (e: Exception) {
             emit(NetworkResult.Error(e.message!!))
+        }
+    }
+
+    private suspend fun FlowCollector<NetworkResult<Response<UserResponse>>>.userRequest(
+        response: Response<UserResponse>
+    ) {
+        if (response.isSuccessful && response.body() != null) {
+            emit(NetworkResult.Success(data = response))
+        } else if (response.errorBody() != null) {
+            val errorObj = JSONObject(response.errorBody()!!.charStream().readText())
+            emit(NetworkResult.Error(errorObj.getString("message")))
+        } else {
+            emit(NetworkResult.Error(response.errorBody().toString()))
         }
     }
 }

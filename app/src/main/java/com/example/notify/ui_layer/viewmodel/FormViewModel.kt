@@ -78,9 +78,10 @@ class FormViewModel : ViewModel() {
         password: String = _uiState.value.password,
         username: String = _uiState.value.username,
         confirmedPassword: String? = _uiState.value.confirmedPassword,
+        isLogin: Boolean = false
     ): Pair<Boolean, String> {
-        var result = Pair(true, "")
-        if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
+        var result = Pair(true, "DJ")
+        if (email.isEmpty() || password.isEmpty()) {
 
             result = Pair(false, "All fields are required")
 
@@ -92,10 +93,11 @@ class FormViewModel : ViewModel() {
 
             result = Pair(false, "Password length should be greater than 5")
 
+        } else if (!isLogin) {
+            if (password != confirmedPassword) {
+                result = Pair(false, "Confirmed password should be match")
+            }
         }
-//        else if ( password != confirmedPassword) {
-//            result = Pair(false, "Confirmed password should be match")
-//        }
         return result
     }
 

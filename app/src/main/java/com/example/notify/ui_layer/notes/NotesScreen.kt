@@ -29,7 +29,7 @@ fun NotesScreen(
 ) {
 
     val allNotes by notes.notesViewModel.collectAsState()
-
+    notes.notesViewModel.collectAsState()
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -40,55 +40,54 @@ fun NotesScreen(
                 Icon(Icons.Outlined.Add, contentDescription = "Add Note")
             }
         },
-        topBar = {
-
-        },
+        topBar = {},
         snackbarHost = {},
         content = {
-            ScreenOfNotes(allNotes)
+            ScreenOfNotes()
 //            ListOfNotes(allNotes as NotesResult.Success<NotesResponse>)
         },
     )
 }
 
 @Composable
-fun ScreenOfNotes(allNotes: NotesResult<Response<List<NotesResponse>>>) {
-    when(allNotes) {
-        is NotesResult.Error -> {
+fun ScreenOfNotes() {
+//    when(allNotes) {
+//        is NotesResult.Error -> {
+//
+//        }
+//        NotesResult.Ideal -> {
+//
+//        }
+//        NotesResult.Loading -> {
+//
+//        }
+//        is NotesResult.Success<*> -> {
+//            ListOfNotes(allNotes = allNotes)
+//        }
+//    }
+//}
 
-        }
-        NotesResult.Ideal -> {
-
-        }
-        NotesResult.Loading -> {
-
-        }
-        is NotesResult.Success<*> -> {
-            ListOfNotes(allNotes)
+    @Composable
+    fun ListOfNotes(allNotes: NotesResult<Response<List<NotesResponse>>>) {
+        LazyVerticalStaggeredGrid(
+            columns = StaggeredGridCells.Adaptive(2.dp)
+        ) {
+//        items() {  }
         }
     }
-}
 
-@Composable
-fun ListOfNotes(allNotes: NotesResult<Response<List<NotesResponse>>>) {
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Adaptive(2.dp)
-    ) {
-        allNotes.
+    @Composable
+    fun AddNote(modifier: Modifier = Modifier) {
+
     }
-}
 
-@Composable
-fun AddNote(modifier: Modifier = Modifier) {
+    @Composable
+    fun EditNote(modifier: Modifier = Modifier) {
 
-}
+    }
 
-@Composable
-fun EditNote(modifier: Modifier = Modifier) {
+    @Composable
+    fun DeleteNote(modifier: Modifier = Modifier) {
 
-}
-
-@Composable
-fun DeleteNote(modifier: Modifier = Modifier) {
-
+    }
 }

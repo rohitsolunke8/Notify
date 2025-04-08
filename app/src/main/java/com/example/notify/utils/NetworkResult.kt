@@ -8,7 +8,7 @@ sealed class NetworkResult<out T> {
 }
 
 sealed class NotesResult<out T> {
-    data class Success<out T>(val data: T?) : NotesResult<T>()
+    data class Success<out T>(val data: T) : NotesResult<T>()
     data class Error(val message: String) : NotesResult<Nothing>()
     data object Loading : NotesResult<Nothing>()
     data object Ideal: NotesResult<Nothing>()

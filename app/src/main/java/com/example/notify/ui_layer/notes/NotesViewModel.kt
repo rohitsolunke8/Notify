@@ -9,6 +9,7 @@ import com.example.notify.utils.NotesResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -18,9 +19,9 @@ import javax.inject.Inject
 @HiltViewModel
 class NotesViewModel @Inject constructor(private val notesRepo: NotesRepository) : ViewModel() {
 
-    private val _notesViewModel =
-        MutableStateFlow<NotesResult<Response<List<NotesResponse>>>>(NotesResult.Ideal)
-    val notesViewModel = _notesViewModel.asStateFlow()
+    private var _notesViewModel =
+        MutableStateFlow<NotesResult<NotesResult<Response<List<NotesResponse>>>>>(NotesResult.Ideal)
+    val notesViewModel: StateFlow<NotesResult<NotesResult<Response<List<NotesResponse>>>>> = _notesViewModel.asStateFlow()
 
     private fun getAllNotes() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -40,7 +41,7 @@ class NotesViewModel @Inject constructor(private val notesRepo: NotesRepository)
 
                     is NotesResult.Success<*> -> {
                         _notesViewModel.update {
-                            NotesResult.Success(notes.data as Response<List<NotesResponse>>)
+                            NotesResult.Success(notes.data) as NotesResult<NotesResult<Response<List<NotesResponse>>>>
                         }
                     }
 

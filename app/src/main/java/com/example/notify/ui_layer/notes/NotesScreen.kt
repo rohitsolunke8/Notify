@@ -1,10 +1,13 @@
 package com.example.notify.ui_layer.notes
 
 import android.annotation.SuppressLint
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -12,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -29,7 +33,8 @@ fun NotesScreen(
 ) {
 
     val allNotes by notes.notesViewModel.collectAsState()
-    notes.notesViewModel.collectAsState()
+
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -43,51 +48,54 @@ fun NotesScreen(
         topBar = {},
         snackbarHost = {},
         content = {
-            ScreenOfNotes()
-//            ListOfNotes(allNotes as NotesResult.Success<NotesResponse>)
+            ScreenOfNotes(allNotes)
         },
     )
 }
 
 @Composable
-fun ScreenOfNotes() {
-//    when(allNotes) {
-//        is NotesResult.Error -> {
-//
-//        }
-//        NotesResult.Ideal -> {
-//
-//        }
-//        NotesResult.Loading -> {
-//
-//        }
-//        is NotesResult.Success<*> -> {
-//            ListOfNotes(allNotes = allNotes)
-//        }
-//    }
-//}
+fun ScreenOfNotes(allNotes: NotesResult<Response<List<NotesResponse>>>) {
+    val context = LocalContext.current
+    when (allNotes) {
+        is NotesResult.Error -> {
+            Toast.makeText(context, allNotes.message, Toast.LENGTH_SHORT).show()
+        }
 
-    @Composable
-    fun ListOfNotes(allNotes: NotesResult<Response<List<NotesResponse>>>) {
-        LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Adaptive(2.dp)
-        ) {
-//        items() {  }
+        NotesResult.Ideal -> {
+
+        }
+
+        NotesResult.Loading -> {
+            CircularProgressIndicator()
+        }
+
+        is NotesResult.Success<Response<List<NotesResponse>>> -> {
+            ListOfNotes(allNotes.data)
         }
     }
+}
 
-    @Composable
-    fun AddNote(modifier: Modifier = Modifier) {
-
-    }
-
-    @Composable
-    fun EditNote(modifier: Modifier = Modifier) {
-
-    }
-
-    @Composable
-    fun DeleteNote(modifier: Modifier = Modifier) {
-
+@Composable
+fun ListOfNotes(data: Response<List<NotesResponse>>) {
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Adaptive(2.dp)
+    ) {
+        Log.d("data",  "$data")
     }
 }
+
+@Composable
+fun AddNote(modifier: Modifier = Modifier) {
+
+}
+
+@Composable
+fun EditNote(modifier: Modifier = Modifier) {
+
+}
+
+@Composable
+fun DeleteNote(modifier: Modifier = Modifier) {
+
+}
+

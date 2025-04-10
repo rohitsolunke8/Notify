@@ -1,5 +1,6 @@
 package com.example.notify.ui_layer.notes
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notify.models.notes.NotesRequest
@@ -20,8 +21,9 @@ import javax.inject.Inject
 class NotesViewModel @Inject constructor(private val notesRepo: NotesRepository) : ViewModel() {
 
     private var _notesViewModel =
-        MutableStateFlow<NotesResult<NotesResult<Response<List<NotesResponse>>>>>(NotesResult.Ideal)
-    val notesViewModel: StateFlow<NotesResult<NotesResult<Response<List<NotesResponse>>>>> = _notesViewModel.asStateFlow()
+        MutableStateFlow<NotesResult<Response<List<NotesResponse>>>>(NotesResult.Ideal)
+    val notesViewModel: StateFlow<NotesResult<Response<List<NotesResponse>>>> =
+        _notesViewModel.asStateFlow()
 
     private fun getAllNotes() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -33,24 +35,25 @@ class NotesViewModel @Inject constructor(private val notesRepo: NotesRepository)
                         }
                     }
 
-                    NotesResult.Loading -> {
+                    is NotesResult.Loading -> {
                         _notesViewModel.update {
                             NotesResult.Loading
                         }
                     }
 
-                    is NotesResult.Success<*> -> {
+                    is NotesResult.Success<Response<List<NotesResponse>>> -> {
                         _notesViewModel.update {
-                            NotesResult.Success(notes.data) as NotesResult<NotesResult<Response<List<NotesResponse>>>>
+                            NotesResult.Success<Response<List<NotesResponse>>>(notes.data)
                         }
                     }
 
-                    NotesResult.Ideal -> {
+                    is NotesResult.Ideal -> {
                         _notesViewModel.update {
                             NotesResult.Ideal
                         }
                     }
                 }
+                Log.d("$notes", "NotesResponse")
             }
         }
     }

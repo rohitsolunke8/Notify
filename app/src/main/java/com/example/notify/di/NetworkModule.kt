@@ -1,20 +1,18 @@
 package com.example.notify.di
 
-import android.content.Context
-import androidx.datastore.core.MultiProcessDataStoreFactory
 import com.example.notify.api.NetworkInterceptor
 import com.example.notify.api.NotesApi
 import com.example.notify.api.UserApi
 import com.example.notify.utils.Constants
-import com.example.notify.utils.NotifyPreferencesDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.SocketTimeoutException
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -32,30 +30,39 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideOkhttpClient(authInterceptor: NetworkInterceptor): OkHttpClient {
-        return OkHttpClient.Builder()
-            .addNetworkInterceptor(authInterceptor).build()
+        return try {
+            OkHttpClient.Builder()
+                .addNetworkInterceptor(authInterceptor)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                .build()
+        } catch (e: SocketTimeoutException){
+            e.message
+        } as OkHttpClient
     }
 
     @Singleton
     @Provides
     fun providesUserApi(retrofit: Retrofit.Builder): UserApi {
-        return retrofit.build().create(UserApi::class.java)
+        return try {
+            retrofit.build().create(UserApi::class.java)
+        } catch (e: Exception) {
+            e.message
+        } as UserApi
     }
 
     @Singleton
     @Provides
     fun provideNotesApi(retrofit: Retrofit.Builder, okHttpClient: OkHttpClient): NotesApi {
-        return retrofit
-            .client(okHttpClient)
-            .build().create(NotesApi::class.java)
+        return try {
+            retrofit
+                .client(okHttpClient)
+                .build().create(NotesApi::class.java)
+        } catch (e: Exception) {
+            e.message
+        } as NotesApi
     }
-
-//    @Singleton
-//    @Provides
-//    fun provideDataPreferenceStore(@ApplicationContext context: Context) : NotifyPreferencesDataStore =
-//        MultiProcessDataStoreFactory.create(provideDataPreferenceStore(context))
-
-
 
 
 //    @Singleton

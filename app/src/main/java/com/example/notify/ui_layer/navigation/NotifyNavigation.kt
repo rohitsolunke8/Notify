@@ -1,6 +1,7 @@
 package com.example.notify.ui_layer.navigation
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,7 +35,8 @@ fun NotifyNavigation(modifier: Modifier = Modifier) {
 
     LaunchedEffect(key1 = token) {
         scope.launch {
-            token = tokenManager.tokenKeyFlow.first()
+            token = tokenManager.getToken().first()
+            Log.d("notifyToken" , "$token")
         }
     }
 

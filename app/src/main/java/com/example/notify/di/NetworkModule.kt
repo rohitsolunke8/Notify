@@ -22,9 +22,13 @@ class NetworkModule {
     @Singleton
     @Provides
     fun providesRetrofit(): Retrofit.Builder {
-        return Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl(Constants.BASE_URL)
+        return try {
+            Retrofit.Builder()
+                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl(Constants.BASE_URL)
+        } catch (e : SocketTimeoutException) {
+            error(e.message.toString())
+        }
     }
 
     @Singleton
@@ -38,8 +42,8 @@ class NetworkModule {
                 .writeTimeout(15, TimeUnit.SECONDS)
                 .build()
         } catch (e: SocketTimeoutException){
-            e.message
-        } as OkHttpClient
+            error(e.message.toString())
+        }
     }
 
     @Singleton
@@ -48,7 +52,7 @@ class NetworkModule {
         return try {
             retrofit.build().create(UserApi::class.java)
         } catch (e: Exception) {
-            e.message
+            error(e.message.toString())
         } as UserApi
     }
 
@@ -58,9 +62,10 @@ class NetworkModule {
         return try {
             retrofit
                 .client(okHttpClient)
-                .build().create(NotesApi::class.java)
-        } catch (e: Exception) {
-            e.message
+                .build()
+                .create(NotesApi::class.java)
+        } catch (e: SocketTimeoutException) {
+            error(e.message.toString())
         } as NotesApi
     }
 

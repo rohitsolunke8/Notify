@@ -1,5 +1,6 @@
 package com.example.notify.repo
 
+import android.R.id.message
 import com.example.notify.api.NotesApi
 import com.example.notify.models.notes.NotesRequest
 import com.example.notify.models.notes.NotesResponse
@@ -13,14 +14,16 @@ import javax.inject.Inject
 class NotesRepository @Inject constructor(private val notesApi: NotesApi) {
 
     fun getNotes(): Flow<NotesResult<Response<List<NotesResponse>>>> = flow {
-        val notesResponse = notesApi.getNotes()
+
         try {
-            NotesResult.Loading
+            val notesResponse = notesApi.getNotes()
             if (notesResponse.isSuccessful && notesResponse.body() != null) {
                 emit(NotesResult.Success(notesResponse))
             } else if (notesResponse.errorBody() != null) {
                 val errorBody = JSONObject(notesResponse.errorBody()!!.charStream().readText())
                 emit(NotesResult.Error(errorBody.toString()))
+            } else if (notesResponse.message() != null) {
+                emit(NotesResult.Error(message.toString()))
             }
         } catch (e: Exception) {
             emit(NotesResult.Error(e.message.toString()))
